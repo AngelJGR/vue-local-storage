@@ -1,58 +1,82 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-vuex" target="_blank" rel="noopener">vuex</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div>
+    <b-row class="mt-5 justify-content-sm-center">
+      <b-col sm="12" md="8" lg="6">
+        <h1 class="text-center">{{titulo}}</h1>
+        <b-row>
+          <b-col cols="12">
+            <b-form-input 
+              v-model="nuevaTarea"
+              placeholder="Ingresa rutina"
+              class="my-3"
+              @keyup.enter="agregarTarea"
+            ></b-form-input>
+          </b-col>
+          <b-col cols="12">
+            <b-button variant="info" @click="agregarTarea">Agregar</b-button>
+          </b-col>
+          <b-col cols="12" class="mt-5">
+            <b-alert 
+              show 
+              v-for="(tarea, index) of tareas"
+              :key="tarea.id"
+              :variant="tarea.estado ? 'success' : 'danger'"
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <div>{{index+1}} - {{tarea.nombre}} - <strong>{{tarea.estado}}</strong></div>
+                <div>
+                  <b-button variant="success" size="sm" @click="editarTarea(index)">
+                    <b-icon icon="check-circle-fill"></b-icon>
+                  </b-button>
+                  <b-button variant="danger" class="ml-1" size="sm" @click="eliminar(index)">
+                    <b-icon icon="trash-fill"></b-icon>
+                  </b-button>
+                </div>
+              </div>
+            </b-alert>
+          </b-col>
+        </b-row>
+      </b-col>
+    </b-row>
   </div>
 </template>
 
 <script>
 export default {
   name: 'HelloWorld',
-  props: {
-    msg: String
+  data(){
+    return {
+      titulo: "Gym con Vue",
+      nuevaTarea: "",
+      tareas: []
+    }
+  },
+  methods: {
+    agregarTarea(){
+      this.tareas.push({
+        nombre: this.nuevaTarea,
+        estado: false
+      });
+      localStorage.setItem('vue-gym', JSON.stringify(this.tareas));
+      this.nuevaTarea = "";
+    },
+    editarTarea(index){
+      this.tareas[index].estado = !this.tareas[index].estado;
+      localStorage.setItem('vue-gym', JSON.stringify(this.tareas));
+    },
+    eliminar(index){
+      this.tareas.splice(index, 1);
+      localStorage.setItem('vue-gym', JSON.stringify(this.tareas));
+    }
+  },
+  created(){
+    let datosLS = JSON.parse(localStorage.getItem('vue-gym'));
+    console.log(datosLS);
+    if (datosLS === null) {
+      this.tareas = [];
+    } else {
+      this.tareas = datosLS;
+    }
   }
 }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
